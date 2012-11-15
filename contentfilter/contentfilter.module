@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * @file
+ */
+
+/**
+ * hook_block_view_MODULE_DELTA_alter()
+ */
+function contentfilter_block_view_system_main_alter(&$data, $block) {
+  global $conf;
+  
+  if (drupal_is_front_page()) {
+    $terms = taxonomy_get_term_by_name($conf['site_host']);  
+    if ($terms) {
+      $term = array_shift($terms);
+      $nids = taxonomy_select_nodes($term->tid, FALSE, 1);
+      $node = node_load($nids[0]);
+      
+      $data['content'] = array(
+        '#type' => 'markup',
+        '#markup' => drupal_render(node_view($node, 'full')),
+      );
+      
+      drupal_set_title($node->title);
+    }
+  }
+}
+/**
+ * hook_node_view()
+ */
+function contentfilter_node_view($node, $view_mode, $langcode) {
+  
+}
+/**
+ * template_preprocess_node()
+ */
+function contentfilter_preprocess_node(&$variables) {
+  $node = $variables['node'];
+
+  if ($items = field_get_items('node', $node, 'field_presentation')) {
+    foreach ($items as $delta => $item) {
+      $term = $item['taxonomy_term'];
+      $variables['classes_array'][] = str_replace(' ', '-', $term->name);
+    }
+  }
+}

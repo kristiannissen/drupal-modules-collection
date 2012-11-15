@@ -1,0 +1,4 @@
+name = Node Reference Field
+core = 7.x
+files[] = nodereference.install
+files[] = nodereference.module

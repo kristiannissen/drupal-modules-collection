@@ -1,0 +1,119 @@
+<?php
+
+function nodereference_field_info() {
+  return array(
+    'nodereference_nid' => array(
+      'label' => t('Node Reference'),
+      'description' => t('To come'),
+      'default_widget' => 'nodereference_autocomplete_widget',
+      'default_formatter' => 'nodereference_simple_formatter',
+    ),
+  );
+}
+
+function nodereference_field_is_empty($item, $field) {
+  return empty($item['node_ref_nid']);
+}
+
+function nodereference_field_formatter_info() {
+  return array(
+    'nodereference_simple_formatter' => array(
+      'label' => t('Node Reference Simple Formatter'),
+      'field types' => array('nodereference_nid'),
+    ),
+  );
+}
+
+function nodereference_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+
+  switch ($display['type']) {
+    case 'nodereference_simple_formatter':
+
+      foreach ($items as $delta => $item) {
+        $node = node_load($item['node_ref_nid']);
+        $node = node_view($node, 'teaser');
+
+        $element[$delta] = array(
+          '#type' => 'markup',
+          '#markup' => drupal_render($node),
+        );
+      }
+
+    break;
+  }
+
+  return $element;
+}
+
+function nodereference_field_widget_info() {
+  return array(
+    'nodereference_autocomplete_widget' => array(
+      'label' => t('Node Reference'),
+      'field types' => array('nodereference_nid'),
+      'settings' => array(
+        'autocomplete_path' => 'nodereference/autocomplete',
+      ),
+    ),
+  );
+}
+
+function nodereference_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $node_ref_nid = isset($items[$delta]['node_ref_nid']) ? $items[$delta]['node_ref_nid'] : NULL;
+
+  if ($node_ref_nid) {
+    $node = node_load($node_ref_nid);
+  }
+
+  $element += array(
+    '#type' => 'textfield',
+    '#default_value' => isset($node) ? $node->title : '',
+    '#autocomplete_path' => 'nodereference/autocomplete',
+  );
+
+  return array('node_ref_nid' => $element);
+}
+
+function nodereference_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  foreach ($items as $delta => $item) {
+    if ($item['node_ref_nid']) {
+      $node = db_select('node', 'n')
+      ->fields('n', array('nid'))
+      ->condition('title', $item['node_ref_nid'])
+      ->execute()
+      ->fetchObject();
+
+      if (is_object($node) && property_exists($node, 'nid')) {
+        $items[$delta]['node_ref_nid'] = $node->nid;
+      }
+    }
+  }
+}
+
+function nodereference_menu() {
+  $items = array();
+
+  $items['nodereference/autocomplete'] = array(
+    'page callback' => 'nodereference_autocomplete',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+function nodereference_autocomplete($title = null) {
+  $matches = array();
+  
+  if ($title) {
+    $result = db_query('SELECT n.title FROM {node} n WHERE n.title LIKE :pattern LIMIT 5', array(
+      ':pattern' => db_like($title) .'%',
+    ));
+
+    while ($record = $result->fetchAssoc()) {
+      $matches[$record['title']] = $record['title'];
+    }
+  }
+  
+  print drupal_json_encode($matches);
+}

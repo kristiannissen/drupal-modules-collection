@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * 
+ */
+
+/**
+ * hook_filter_info()
+ */
+function embed_filter_info() {
+  return array(
+    'embed_reference' => array(
+      'title' => t('Embed Reference to Nodes and Terms'),
+      'process callback' => '_embed_reference_process',
+      'tips callback' => '_embed_reference_tips',
+    ),
+  );
+}
+/**
+ * _embed_reference_process()
+ */
+function _embed_reference_process($text, $filter, $format) {
+  if (preg_match_all("/\[(.*?)\|(node|term)\:(\d+)\]/i", $text, $params)) {
+    foreach ($params[0] as $key => $param) {
+      $args = array(
+        $params[0][$key],
+        $params[1][$key],
+        $params[2][$key],
+        $params[3][$key],
+      );
+      $markup = _embed_reference_html($args);
+      $text = str_replace($param, $markup, $text);
+    }
+  }
+  
+  return $text;
+}
+/**
+ * _embed_reference_tips()
+ */
+function _embed_reference_tips() {
+  return t('<em>embed</em> filters nodes and terms');
+}
+/**
+ * _embed_reference_html()
+ */
+function _embed_reference_html($args) {
+  $link = '';
+  if ($args[2] == 'node') {
+    $link = 'node/'. $args[3];
+  }
+  if ($args[2] == 'term') {
+    $link = 'taxonomy/term/'. $args[3];
+  }
+  
+  return l($args[1], $link);
+}

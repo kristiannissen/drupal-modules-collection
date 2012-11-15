@@ -1,0 +1,3 @@
+name = Content Filter
+core = 7.x
+files[] = contentfilter.module

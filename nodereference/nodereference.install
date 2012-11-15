@@ -1,0 +1,23 @@
+<?php
+
+function nodereference_field_schema($field) {
+  $columns = array();
+  $indexes = array();
+
+  $columns = array(
+    'node_ref_nid' => array(
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+    ),
+  );
+
+  $indexes = array(
+    'node_ref_nid' => array('node_ref_nid'),
+  );
+
+  return array(
+    'columns' => $columns,
+    'indexes' => $indexes,
+  );
+}

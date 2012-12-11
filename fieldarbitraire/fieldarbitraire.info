@@ -1,4 +1,5 @@
 name = Field Arbitraire
+description = This is a simple arbitrary field, you can use it to hold either text, number or date and theme it as you like
 core = 7.x
 files[] = fieldarbitraire.install
 files[] = fieldarbitraire.module

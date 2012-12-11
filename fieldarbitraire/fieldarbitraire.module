@@ -1,0 +1,150 @@
+<?php
+
+function fieldarbitraire_field_info () {
+  return array(
+    'fieldarbitraire_fieldarbitraire' => array(
+      'label' => t('Arbitrary Field'),
+      'description' => t('Coming soon'),
+      'default_widget' => 'fieldarbitraire_default_widget',
+      'default_formatter' => 'fieldarbitraire_default_formatter',
+    ),
+  );
+}
+
+function fieldarbitraire_field_widget_info () {
+  return array(
+    'fieldarbitraire_default_widget' => array(
+      'label' => t('Arbitrary Field'),
+      'field types' => array('fieldarbitraire_fieldarbitraire'),
+    ),
+  );
+}
+
+function fieldarbitraire_field_is_empty ($item, $field) {
+  $has_value = TRUE;
+  
+  foreach (array('fieldarbitraire_key', 'fieldarbitraire_value', 'fieldarbitraire_value_type') as $field) {
+    if (empty($item[$field]) === FALSE) {
+      $has_value = FALSE;
+    }
+  }
+  
+  return $has_value;
+}
+
+function fieldarbitraire_field_formatter_info () {
+  return array(
+    'fieldarbitraire_default_formatter' => array(
+      'label' => t('Default'),
+      'field types' => 'form',
+    ),
+  );
+}
+
+function fieldarbitraire_field_formatter_view ($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  
+  $theme_functions = array(
+    'fieldarbitraire_field_text',
+    'fieldarbitraire_field_number',
+    'fieldarbitraire_field_date',
+  );
+  
+  switch ($display['type']) {
+    case 'fieldarbitraire_default_formatter':
+      
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array(
+          'label' => array(
+            '#type' => 'container',
+            '#attributes' => array('class' => array('field-label')),
+            'text' => array(
+              '#markup' => $item['fieldarbitraire_key']
+            )
+          ),
+          'item' => array(
+            '#type' => 'container',
+            '#attributes' => array('class' => array('field-item')),
+            'text' => array(
+              '#markup' => theme($theme_functions[(int) $item['fieldarbitraire_value_type']], array(
+                'field' => $item['fieldarbitraire_value'],
+              )),
+            ),
+          ),
+        );
+      }
+      
+    break;
+  }
+  
+  return $element;
+}
+
+function fieldarbitraire_theme () {
+  return array(
+    'fieldarbitraire_field_text' => array(
+      'variables' => array('field' => NULL),
+    ),
+    'fieldarbitraire_field_number' => array(
+      'variables' => array('field' => NULL),
+    ),
+    'fieldarbitraire_field_date' => array(
+      'variables' => array('field' => NULL),
+    ),
+  );
+}
+
+function theme_fieldarbitraire_field_text ($variables) {
+  $field = $variables['field'];
+  $output = $field;
+  
+  return $output .' '. __FUNCTION__;
+}
+
+function theme_fieldarbitraire_field_number ($variables) {
+  $field = $variables['field'];
+  $output = $field;
+  
+  return $output .' '. __FUNCTION__;
+}
+
+function theme_fieldarbitraire_field_date ($variables) {
+  $field = $variables['field'];
+  $output = $field;
+  
+  return $output .' '. __FUNCTION__;
+}
+
+function fieldarbitraire_field_widget_form (&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $field_name = $instance['field_name'];
+  $item =& $items[$delta];
+  
+  $element += array(
+    '#type' => 'fieldset',
+  );
+  
+  $element['fieldarbitraire_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Field Label'),
+    '#default_value' => isset ($item['fieldarbitraire_key']) ? $item['fieldarbitraire_key'] : '',
+  );
+  
+  $element['fieldarbitraire_value'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Field value'),
+    '#default_value' => isset ($item['fieldarbitraire_value']) ? $item['fieldarbitraire_value'] : '',
+  );
+  
+  $element['fieldarbitraire_value_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Type of value'),
+    '#options' => array('-None-', 'Text', 'Number', 'Date'),
+    '#default_value' => isset ($item['fieldarbitraire_value_type']) ? $item['fieldarbitraire_value_type'] : '',
+  );
+  
+  return $element;
+}
+
+function fieldarbitraire_field_presave ($entity_type, $entity, $field, $instance, $langcode, &$items) {
+
+}

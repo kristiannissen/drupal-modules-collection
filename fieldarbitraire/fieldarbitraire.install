@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * @file
+ */
+function fieldarbitraire_field_schema ($field) {
+  $columns = array();
+  $indexes = array();
+  
+  $columns = array(
+    'fieldarbitraire_key' => array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => TRUE,
+    ),
+    'fieldarbitraire_value' => array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => TRUE,
+    ),
+    'fieldarbitraire_value_type' => array(
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+    )
+  );
+  
+  return array(
+    'columns' => $columns,
+    'indexes' => $indexes,
+  );
+}

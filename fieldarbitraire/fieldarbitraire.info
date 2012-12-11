@@ -1,0 +1,4 @@
+name = Field Arbitraire
+core = 7.x
+files[] = fieldarbitraire.install
+files[] = fieldarbitraire.module
